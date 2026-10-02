@@ -1,0 +1,324 @@
+<div class="page-shell">
+  <header class="topbar">
+    <a
+      class="brand"
+      href="./"
+      aria-label="Cat & Kin home"
+      (click)="$event.preventDefault(); restartQuiz()"
+    >
+      <span class="brand-icon" aria-hidden="true">🐈</span>
+      <span>cat <span class="brand-amp">&amp;</span> kin</span>
+    </a>
+    <button
+      class="gallery-nav-button"
+      type="button"
+      [attr.aria-expanded]="showGallery()"
+      (click)="toggleGallery()"
+    >
+      {{ showGallery() ? 'Back to quiz' : 'Meet the cats' }}
+      <span aria-hidden="true">{{ showGallery() ? '←' : '↗' }}</span>
+    </button>
+    <span class="topbar-note"
+      ><span class="sparkle" aria-hidden="true">✳</span> a little quiz with a lot of heart</span
+    >
+  </header>
+
+  <main>
+    @if (showGallery()) {
+      <section class="gallery-page" id="breed-gallery" aria-labelledby="gallery-title">
+        <div class="gallery-heading">
+          <span class="eyebrow"
+            ><span aria-hidden="true">✦</span> REAL CATS, READY TO MEET YOU</span
+          >
+          <h1 id="gallery-title">Meet the <span>whole crew.</span></h1>
+          <p>
+            Browse {{ cats.length }} cat profiles from Loudoun County Animal Services. Snapshot
+            captured {{ snapshotDate }}; check each profile for current availability.
+          </p>
+        </div>
+
+        <div class="gallery-grid">
+          @for (cat of cats; track cat.id) {
+            <article class="gallery-card">
+              <div class="gallery-photo-wrap">
+                <img
+                  class="gallery-photo"
+                  [src]="cat.images[0].url"
+                  [alt]="cat.images[0].alt"
+                  loading="lazy"
+                  decoding="async"
+                />
+                <span class="gallery-photo-caption">{{ cat.name }}</span>
+              </div>
+              <div class="gallery-card-copy">
+                <h2>{{ cat.name }}</h2>
+                <p>{{ catSummary(cat) }}</p>
+                <div class="trait-list" aria-label="Profile details">
+                  @if (catAge(cat)) {
+                    <span class="trait-tag">{{ catAge(cat) }}</span>
+                  }
+                  @if (cat.applicationPending) {
+                    <span class="trait-tag">Application pending</span>
+                  }
+                  @if (catNeedsBarnHome(cat)) {
+                    <span class="trait-tag">Barn / working-cat home</span>
+                  }
+                  @if (!cat.matchable) {
+                    <span class="trait-tag">More adoption info</span>
+                  }
+                </div>
+                <div class="gallery-credit">
+                  <span>Photo and listing via 24Petconnect</span>
+                  <a [href]="cat.sourceUrl" target="_blank" rel="noopener noreferrer">
+                    View profile ↗
+                  </a>
+                </div>
+              </div>
+            </article>
+          }
+        </div>
+
+        <div class="gallery-cta">
+          <div>
+            <span class="gallery-cta-kicker">YOUR NEXT BEST FRIEND COULD BE HERE</span>
+            <h2>Ready to meet your match?</h2>
+          </div>
+          <button class="button button-primary" type="button" (click)="startQuiz()">
+            Take the quiz <span aria-hidden="true">↗</span>
+          </button>
+        </div>
+      </section>
+    } @else if (phase() === 'welcome') {
+      <section class="welcome-card" aria-labelledby="welcome-title">
+        <div class="welcome-copy">
+          <span class="eyebrow"><span aria-hidden="true">✦</span> YOUR SOUL CAT IS CALLING</span>
+          <h1 id="welcome-title">
+            The cat who <br />
+            <span>gets you.</span>
+          </h1>
+          <p class="welcome-description">
+            Take our tiny personality quiz and meet a real cat from Loudoun County Animal Services.
+            We match your answers with the words in each cat’s published profile—not a generic
+            breed.
+          </p>
+          <div class="welcome-actions">
+            <button class="button button-primary" type="button" (click)="startQuiz()">
+              Find my cat <span aria-hidden="true">↗</span>
+            </button>
+            <span class="time-note"><span aria-hidden="true">⏱</span> Just 2 minutes</span>
+          </div>
+          <div class="welcome-proof">
+            <div class="avatar-stack" aria-hidden="true">
+              <span>🐱</span><span>😺</span><span>🐈</span>
+            </div>
+            <p>Made for cat people <span aria-hidden="true">♥</span></p>
+          </div>
+        </div>
+
+        <div class="welcome-art" aria-label="A cheerful illustration of a cat waiting to meet you">
+          <div class="art-sunburst" aria-hidden="true"></div>
+          <span class="doodle doodle-star" aria-hidden="true">✳</span>
+          <span class="doodle doodle-heart" aria-hidden="true">♥</span>
+          <span class="doodle doodle-spark" aria-hidden="true">✦</span>
+          <span class="doodle doodle-flower" aria-hidden="true">✿</span>
+          <div class="art-caption"><span>nice to meet</span><strong>mew!</strong></div>
+          <div class="cat-portrait">
+            <span class="cat-face" role="img" aria-label="A smiling tabby cat">😸</span>
+            <span class="portrait-blush portrait-blush-left" aria-hidden="true"></span>
+            <span class="portrait-blush portrait-blush-right" aria-hidden="true"></span>
+          </div>
+          <div class="floating-note note-top"><span aria-hidden="true">✧</span> 100% you</div>
+          <div class="floating-note note-bottom">
+            purr-sonality approved <span aria-hidden="true">♡</span>
+          </div>
+        </div>
+      </section>
+
+      <div class="welcome-details">
+        <div class="how-it-works">
+          <span class="detail-icon" aria-hidden="true">🐾</span> SIX FUN QUESTIONS
+        </div>
+        <span class="detail-divider" aria-hidden="true"></span>
+        <div class="how-it-works">
+          <span class="detail-icon" aria-hidden="true">💌</span> ONE VERY YOU CAT
+        </div>
+        <span class="detail-divider" aria-hidden="true"></span>
+        <div class="how-it-works">
+          <span class="detail-icon" aria-hidden="true">✨</span> ZERO WRONG ANSWERS
+        </div>
+      </div>
+    } @else if (phase() === 'quiz') {
+      <section class="quiz-layout" aria-label="Cat personality quiz">
+        <div class="quiz-card">
+          <div class="quiz-topline">
+            <button class="text-button" type="button" (click)="previousQuestion()">
+              <span aria-hidden="true">←</span> Back
+            </button>
+            <span class="question-count"
+              >QUESTION <strong>{{ questionIndex() + 1 }}</strong> OF {{ questions.length }}</span
+            >
+            <span class="quiz-paw" aria-hidden="true">🐾</span>
+          </div>
+
+          <div
+            class="progress-track"
+            role="progressbar"
+            aria-label="Quiz progress"
+            [attr.aria-valuenow]="completedCount()"
+            [attr.aria-valuemin]="0"
+            [attr.aria-valuemax]="questions.length"
+          >
+            <div class="progress-fill" [style.width.%]="progressPercent()"></div>
+          </div>
+
+          <div class="question-content">
+            <span class="eyebrow question-eyebrow"
+              ><span aria-hidden="true">✦</span> TRUST YOUR GUT</span
+            >
+            <h1>{{ currentQuestion().prompt }}</h1>
+            <p class="question-note">{{ currentQuestion().note }}</p>
+
+            <div class="answer-list" aria-label="Choose an answer">
+              @for (answer of currentQuestion().answers; track answer.label; let index = $index) {
+                <button
+                  class="answer-option"
+                  [class.answer-selected]="currentAnswer() === index"
+                  [attr.aria-pressed]="currentAnswer() === index"
+                  type="button"
+                  (click)="selectAnswer(index)"
+                >
+                  <span class="answer-emoji" aria-hidden="true">{{ answer.emoji }}</span>
+                  <span class="answer-label">{{ answer.label }}</span>
+                  <span class="answer-check" aria-hidden="true">{{
+                    currentAnswer() === index ? '✓' : ''
+                  }}</span>
+                </button>
+              }
+            </div>
+          </div>
+
+          <div class="quiz-footer">
+            <span class="save-note"
+              ><span aria-hidden="true">♡</span> Your answers stay on this device</span
+            >
+            <button
+              class="button button-primary next-button"
+              type="button"
+              [disabled]="currentAnswer() === null"
+              (click)="nextQuestion()"
+            >
+              {{ questionIndex() === questions.length - 1 ? 'Meet my cat' : 'Next question' }}
+              <span aria-hidden="true">→</span>
+            </button>
+          </div>
+        </div>
+
+        <aside class="quiz-aside" aria-label="Quiz details">
+          <div class="aside-illustration" aria-hidden="true">
+            <span class="aside-spark aside-spark-one">✳</span>
+            <span class="aside-spark aside-spark-two">✦</span>
+            <span class="aside-cat">😺</span>
+            <span class="aside-yarn">🧶</span>
+          </div>
+          <span class="aside-kicker">REAL CATS, REAL PROFILES</span>
+          <h2>There’s no wrong way to be <span>you.</span></h2>
+          <p>
+            Your just-for-fun match is based on the shelter’s profile text, not a formal temperament
+            assessment.
+          </p>
+          <div class="breed-count">
+            <span aria-hidden="true">🐾</span> {{ matchableCatCount }} individual cat profiles
+          </div>
+        </aside>
+      </section>
+    } @else {
+      @if (matchingCat(); as cat) {
+        <section class="result-view" aria-labelledby="result-title">
+          <div class="result-heading">
+            <span class="eyebrow"><span aria-hidden="true">✦</span> YOUR REAL-LIFE CAT MATCH</span>
+            <h1 id="result-title">
+              Meet <span>{{ cat.name }}!</span>
+            </h1>
+            <p>This adoptable cat’s profile is the closest match to your quiz answers.</p>
+          </div>
+
+          <article class="result-card">
+            <div class="result-photo-wrap">
+              <img
+                class="result-photo"
+                [src]="cat.images[0].url"
+                [alt]="cat.images[0].alt"
+                fetchpriority="high"
+              />
+              <span class="photo-sticker"><span aria-hidden="true">♡</span> REAL CAT MATCH</span>
+              <span class="photo-caption" aria-hidden="true">hello, {{ cat.name }} ✦</span>
+              <div class="photo-credit">
+                <span>Photo via 24Petconnect</span>
+                <a [href]="cat.sourceUrl" target="_blank" rel="noopener noreferrer">
+                  Adoption profile ↗
+                </a>
+              </div>
+            </div>
+            <div class="result-copy">
+              <span class="result-kicker">{{ catAge(cat) }}</span>
+              <h2>{{ cat.name }}</h2>
+              <p class="result-description">{{ catDescription(cat) }}</p>
+              <div class="trait-list" aria-label="Profile details">
+                @if (cat.applicationPending) {
+                  <span class="trait-tag">Application pending in this snapshot</span>
+                } @else {
+                  <span class="trait-tag">Listed for adoption</span>
+                }
+                @if (catNeedsBarnHome(cat)) {
+                  <span class="trait-tag">Barn / working-cat home</span>
+                }
+                <span class="trait-tag">ID {{ cat.id }}</span>
+              </div>
+              <div class="personality-note">
+                <span class="note-heart" aria-hidden="true">♡</span>
+                <p>{{ catSummary(cat) }}</p>
+              </div>
+              <a
+                class="button button-primary retake-button"
+                [href]="cat.sourceUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                View {{ cat.name }}’s profile <span aria-hidden="true">↗</span>
+              </a>
+              <button class="text-button" type="button" (click)="restartQuiz()">
+                <span aria-hidden="true">↻</span> Take the quiz again
+              </button>
+            </div>
+          </article>
+          <p class="result-footnote">
+            Profile snapshot captured {{ snapshotDate }}. Availability can change—confirm with the
+            shelter before visiting.
+            <a
+              href="https://24petconnect.com/lodnadopt?at=CAT"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              See all current listings ↗
+            </a>
+          </p>
+        </section>
+      } @else {
+        <section class="empty-result" aria-live="polite">
+          <span class="empty-cat" aria-hidden="true">🐱</span>
+          <h1>Oops, we lost our place!</h1>
+          <p>Let’s start fresh and find your cat.</p>
+          <button class="button button-primary" type="button" (click)="restartQuiz()">
+            Start again
+          </button>
+        </section>
+      }
+    }
+  </main>
+
+  <footer class="site-footer">
+    <span>cat <span aria-hidden="true">♡</span> kin</span>
+    <span>made with love &amp; a little cat hair</span>
+    <span>an internet-sized cuddle <span aria-hidden="true">✳</span></span>
+  </footer>
+</div>
