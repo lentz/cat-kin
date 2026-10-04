@@ -35,6 +35,10 @@ function toCamelCase(value) {
     .replace(/^[A-Z]/, (first) => first.toLowerCase());
 }
 
+function isPhotoUrl(url) {
+  return Boolean(url) && !/no_pic/i.test(url);
+}
+
 function parseListing(document) {
   const countText = document.querySelector('#AnimalCountHeader')?.textContent ?? '';
   const total = Number(countText.match(/of\s+(\d+)/i)?.[1] ?? 0);
@@ -55,12 +59,12 @@ function parseListing(document) {
       name,
       listingDescription: description,
       listingStatus: textContent(card.querySelector('.text_MoreInfo')),
-      imageUrl: image ? new URL(image.getAttribute('src'), baseUrl).href : '',
+      imageUrl: image?.getAttribute('src') ? new URL(image.getAttribute('src'), baseUrl).href : '',
       imageAlt: image?.getAttribute('alt') ?? '',
     };
   });
 
-  if (!total || !cats.length || cats.some((cat) => !cat.id || !cat.name || !cat.imageUrl)) {
+  if (!total || !cats.length || cats.some((cat) => !cat.id || !cat.name)) {
     throw new Error(`Could not parse the cat listing page: ${countText}`);
   }
 
@@ -76,18 +80,27 @@ function parseProfile(document, listingCat) {
       ])
       .filter(([label, value]) => label && value),
   );
-  const profileImages = [...document.querySelectorAll('#ImageAndFlag img, img.smallImageHover')]
-    .map((image) => ({
-      url: new URL(image.getAttribute('src'), baseUrl).href,
-      alt: image.getAttribute('alt') || `Photo of ${listingCat.name}`,
-    }))
-    .filter((image) => !image.url.includes('No_pic'));
+  const profileImages = [
+    ...document.querySelectorAll('#ImageAndFlag img, img.smallImageHover'),
+  ].flatMap((image) => {
+    const src = image.getAttribute('src');
+    if (!src) return [];
+
+    const url = new URL(src, baseUrl).href;
+    return isPhotoUrl(url)
+      ? [{ url, alt: image.getAttribute('alt') || `Photo of ${listingCat.name}` }]
+      : [];
+  });
   const images = [
-    { url: listingCat.imageUrl, alt: `Photo of ${listingCat.name}` },
+    ...(isPhotoUrl(listingCat.imageUrl)
+      ? [{ url: listingCat.imageUrl, alt: `Photo of ${listingCat.name}` }]
+      : []),
     ...profileImages,
   ].filter(
     (image, index, all) => all.findIndex((candidate) => candidate.url === image.url) === index,
   );
+  if (!images.length) return null;
+
   const sourceUrl = `${baseUrl}/lodnadopt/Details/LODN/${listingCat.id}`;
   const links = [...document.querySelectorAll('[class*="line_"] a[href]')].map((anchor) => ({
     label: textContent(anchor.closest('[class*="line_"]')?.querySelector('[class^="column_"]')),
@@ -124,20 +137,18 @@ const cats = [];
 for (let offset = 0; offset < actualCatListings.length; offset += 3) {
   const batch = actualCatListings.slice(offset, offset + 3);
   cats.push(
-    ...(await Promise.all(
-      batch.map(async (cat) => {
-        const sourceUrl = `${baseUrl}/lodnadopt/Details/LODN/${cat.id}`;
-        return parseProfile(await getDocument(sourceUrl), cat);
-      }),
-    )),
+    ...(
+      await Promise.all(
+        batch.map(async (cat) => {
+          const sourceUrl = `${baseUrl}/lodnadopt/Details/LODN/${cat.id}`;
+          return parseProfile(await getDocument(sourceUrl), cat);
+        }),
+      )
+    ).filter(Boolean),
   );
   if (offset + 3 < actualCatListings.length) {
     await new Promise((resolve) => setTimeout(resolve, 250));
   }
-}
-
-if (cats.length !== actualCatListings.length) {
-  throw new Error(`Expected ${actualCatListings.length} cat profiles but scraped ${cats.length}`);
 }
 
 const dataset = {
