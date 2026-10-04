@@ -1,6 +1,6 @@
 {
-  "name": "cat-friends",
-  "version": "0.0.0",
+  "name": "cat-kin",
+  "version": "1.0.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -10,7 +10,6 @@
     "scrape:cats": "node scripts/scrape-adoptable-cats.mjs"
   },
   "private": true,
-  "packageManager": "npm@11.13.0",
   "dependencies": {
     "@angular/common": "^21.2.0",
     "@angular/compiler": "^21.2.0",
