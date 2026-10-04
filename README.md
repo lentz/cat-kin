@@ -25,7 +25,7 @@ npm run build
 npm test
 ```
 
-The production build is written to `dist/cat-friends/browser` and can be hosted as a static site.
+The production build is written to `dist/cat-kin/browser` and can be hosted as a static site.
 
 To run a single spec file:
 

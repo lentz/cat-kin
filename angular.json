@@ -6,7 +6,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "cat-friends": {
+    "cat-kin": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -54,10 +54,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "cat-friends:build:production"
+              "buildTarget": "cat-kin:build:production"
             },
             "development": {
-              "buildTarget": "cat-friends:build:development"
+              "buildTarget": "cat-kin:build:development"
             }
           },
           "defaultConfiguration": "development"
