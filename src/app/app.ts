@@ -1,11 +1,22 @@
 import { Component, computed, signal } from '@angular/core';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import {
+  ADOPTABLE_CATS,
+  getCatAge,
+  getCatDescription,
+  getCatSummary,
+  getDetail,
+  isBarnCat,
+} from './cat-profile';
 import adoptionSnapshot from './adoptable-cats.json';
+
+export { ADOPTABLE_CATS, getCatAge, getCatSummary } from './cat-profile';
 
 type Trait =
   'affection' | 'playfulness' | 'curiosity' | 'independence' | 'gentleness' | 'adventure';
 type TraitScores = Record<Trait, number>;
 type Phase = 'welcome' | 'quiz' | 'result';
-type AdoptableCat = (typeof adoptionSnapshot.cats)[number];
+type AdoptableCat = (typeof ADOPTABLE_CATS)[number];
 
 interface Answer {
   readonly label: string;
@@ -218,40 +229,7 @@ export const QUESTIONS: readonly Question[] = [
   },
 ];
 
-export const ADOPTABLE_CATS: readonly AdoptableCat[] = adoptionSnapshot.cats;
 export const MATCHABLE_CATS = ADOPTABLE_CATS.filter((cat) => cat.matchable);
-
-function getDetail(cat: AdoptableCat, label: string): string {
-  return Object.entries(cat.details).find(([key]) => key === label)?.[1] ?? '';
-}
-
-function isBarnCat(cat: AdoptableCat): boolean {
-  const profile = `${getDetail(cat, 'description')} ${getDetail(cat, 'moreInfo')}`;
-  return /\b(?:barn cat|barn kitty|working cat|mouse hunter|mouser|property protector)\b/i.test(
-    profile,
-  );
-}
-
-export function getCatSummary(cat: AdoptableCat): string {
-  const profileText =
-    getDetail(cat, 'moreInfo')
-      .split(/Are you viewing my information on a third party site/i)[0]
-      ?.trim() || getDetail(cat, 'description');
-  const maxLength = 190;
-
-  if (profileText.length <= maxLength) return profileText;
-
-  const shortened = profileText.slice(0, maxLength);
-  return `${shortened.slice(0, shortened.lastIndexOf(' '))}…`;
-}
-
-export function getCatAge(cat: AdoptableCat): string {
-  const age = getDetail(cat, 'age');
-  return age
-    .replace(/^The shelter staff think I am about /i, '')
-    .replace(/^My age is /i, '')
-    .replace(/\.$/, '');
-}
 
 function getProfileTraits(cat: AdoptableCat): TraitScores {
   const profile = `${getDetail(cat, 'description')} ${getDetail(cat, 'moreInfo')}`;
@@ -337,17 +315,15 @@ export function findMatchingCat(answers: readonly (number | null)[]): AdoptableC
 
 @Component({
   selector: 'app-root',
-  imports: [],
+  imports: [RouterLink],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
 export class App {
   protected readonly phase = signal<Phase>('welcome');
-  protected readonly showGallery = signal(false);
   protected readonly questionIndex = signal(0);
   protected readonly answers = signal<(number | null)[]>(Array(QUESTIONS.length).fill(null));
   protected readonly questions = QUESTIONS;
-  protected readonly cats = ADOPTABLE_CATS;
   protected readonly matchableCatCount = MATCHABLE_CATS.length;
   protected readonly snapshotDate = new Intl.DateTimeFormat('en-US', {
     dateStyle: 'medium',
@@ -362,6 +338,12 @@ export class App {
   );
   protected readonly matchingCat = computed(() => findMatchingCat(this.answers()));
 
+  constructor(route: ActivatedRoute) {
+    if (route.snapshot.queryParamMap.get('startQuiz') === 'true') {
+      this.phase.set('quiz');
+    }
+  }
+
   protected catSummary(cat: AdoptableCat): string {
     return getCatSummary(cat);
   }
@@ -371,7 +353,7 @@ export class App {
   }
 
   protected catDescription(cat: AdoptableCat): string {
-    return getDetail(cat, 'description');
+    return getCatDescription(cat);
   }
 
   protected catNeedsBarnHome(cat: AdoptableCat): boolean {
@@ -379,13 +361,8 @@ export class App {
   }
 
   protected startQuiz(): void {
-    this.showGallery.set(false);
     this.phase.set('quiz');
     this.questionIndex.set(0);
-  }
-
-  protected toggleGallery(): void {
-    this.showGallery.update((isVisible) => !isVisible);
   }
 
   protected selectAnswer(answerIndex: number): void {
@@ -415,7 +392,6 @@ export class App {
   }
 
   protected restartQuiz(): void {
-    this.showGallery.set(false);
     this.answers.set(Array(QUESTIONS.length).fill(null));
     this.questionIndex.set(0);
     this.phase.set('welcome');

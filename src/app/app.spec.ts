@@ -1,10 +1,15 @@
 import { TestBed } from '@angular/core/testing';
+import { provideRouter, Router } from '@angular/router';
+import { MeetTheCatsComponent } from './meet-the-cats.component';
+import { routes } from './app.config';
+import { AppRoot } from './app-root';
 import { ADOPTABLE_CATS, App, findMatchingCat, MATCHABLE_CATS, QUESTIONS } from './app';
 
 describe('Cat & Kin', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [App],
+      imports: [App, MeetTheCatsComponent],
+      providers: [provideRouter(routes)],
     }).compileComponents();
   });
 
@@ -89,14 +94,8 @@ describe('Cat & Kin', () => {
     );
   });
 
-  it('shows every scraped cat and photo on the gallery page', () => {
-    const fixture = TestBed.createComponent(App);
-    fixture.detectChanges();
-
-    const galleryButton = fixture.nativeElement.querySelector(
-      '.gallery-nav-button',
-    ) as HTMLButtonElement;
-    galleryButton.click();
+  it('shows every scraped cat and photo on the gallery route', () => {
+    const fixture = TestBed.createComponent(MeetTheCatsComponent);
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelector('#gallery-title')).not.toBeNull();
@@ -115,7 +114,22 @@ describe('Cat & Kin', () => {
       ADOPTABLE_CATS.length,
     );
 
-    fixture.nativeElement.querySelector('.gallery-cta .button').click();
+    expect(fixture.nativeElement.querySelector('.gallery-cta a')?.getAttribute('href')).toBe(
+      '/?startQuiz=true',
+    );
+  });
+
+  it('navigates to the gallery URL and starts the quiz from its CTA', async () => {
+    const fixture = TestBed.createComponent(AppRoot);
+    const router = TestBed.inject(Router);
+    fixture.detectChanges();
+
+    await router.navigateByUrl('/meet-the-cats');
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('#gallery-title')).not.toBeNull();
+    expect(router.url).toBe('/meet-the-cats');
+
+    await router.navigateByUrl('/?startQuiz=true');
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('.question-count')?.textContent).toContain('1');
   });

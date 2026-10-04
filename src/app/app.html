@@ -1,94 +1,19 @@
 <div class="page-shell">
   <header class="topbar">
-    <a
-      class="brand"
-      href="./"
-      aria-label="Cat & Kin home"
-      (click)="$event.preventDefault(); restartQuiz()"
-    >
+    <a class="brand" routerLink="/" aria-label="Cat & Kin home" (click)="restartQuiz()">
       <span class="brand-icon" aria-hidden="true">🐈</span>
       <span>cat <span class="brand-amp">&amp;</span> kin</span>
     </a>
-    <button
-      class="gallery-nav-button"
-      type="button"
-      [attr.aria-expanded]="showGallery()"
-      (click)="toggleGallery()"
-    >
-      {{ showGallery() ? 'Back to quiz' : 'Meet the cats' }}
-      <span aria-hidden="true">{{ showGallery() ? '←' : '↗' }}</span>
-    </button>
+    <a class="gallery-nav-button" routerLink="/meet-the-cats">
+      Meet the cats <span aria-hidden="true">↗</span>
+    </a>
     <span class="topbar-note"
       ><span class="sparkle" aria-hidden="true">✳</span> a little quiz with a lot of heart</span
     >
   </header>
 
   <main>
-    @if (showGallery()) {
-      <section class="gallery-page" id="cat-gallery" aria-labelledby="gallery-title">
-        <div class="gallery-heading">
-          <span class="eyebrow"
-            ><span aria-hidden="true">✦</span> REAL CATS, READY TO MEET YOU</span
-          >
-          <h1 id="gallery-title">Meet the <span>whole crew.</span></h1>
-          <p>
-            Browse {{ cats.length }} cat profiles from Loudoun County Animal Services. Snapshot
-            captured {{ snapshotDate }}; check each profile for current availability.
-          </p>
-        </div>
-
-        <div class="gallery-grid">
-          @for (cat of cats; track cat.id) {
-            <article class="gallery-card">
-              <div class="gallery-photo-wrap">
-                <img
-                  class="gallery-photo"
-                  [src]="cat.images[0].url"
-                  [alt]="cat.images[0].alt"
-                  loading="lazy"
-                  decoding="async"
-                />
-                <span class="gallery-photo-caption">{{ cat.name }}</span>
-              </div>
-              <div class="gallery-card-copy">
-                <h2>{{ cat.name }}</h2>
-                <p>{{ catSummary(cat) }}</p>
-                <div class="trait-list" aria-label="Profile details">
-                  @if (catAge(cat)) {
-                    <span class="trait-tag">{{ catAge(cat) }}</span>
-                  }
-                  @if (cat.applicationPending) {
-                    <span class="trait-tag">Application pending</span>
-                  }
-                  @if (catNeedsBarnHome(cat)) {
-                    <span class="trait-tag">Barn / working-cat home</span>
-                  }
-                  @if (!cat.matchable) {
-                    <span class="trait-tag">More adoption info</span>
-                  }
-                </div>
-                <div class="gallery-credit">
-                  <span>Photo and listing via 24Petconnect</span>
-                  <a [href]="cat.sourceUrl" target="_blank" rel="noopener noreferrer">
-                    View profile ↗
-                  </a>
-                </div>
-              </div>
-            </article>
-          }
-        </div>
-
-        <div class="gallery-cta">
-          <div>
-            <span class="gallery-cta-kicker">YOUR NEXT BEST FRIEND COULD BE HERE</span>
-            <h2>Ready to meet your match?</h2>
-          </div>
-          <button class="button button-primary" type="button" (click)="startQuiz()">
-            Take the quiz <span aria-hidden="true">↗</span>
-          </button>
-        </div>
-      </section>
-    } @else if (phase() === 'welcome') {
+    @if (phase() === 'welcome') {
       <section class="welcome-card" aria-labelledby="welcome-title">
         <div class="welcome-copy">
           <span class="eyebrow"><span aria-hidden="true">✦</span> YOUR SOUL CAT IS CALLING</span>

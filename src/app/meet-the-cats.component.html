@@ -1,0 +1,84 @@
+<div class="page-shell">
+  <header class="topbar">
+    <a class="brand" routerLink="/" aria-label="Cat & Kin home">
+      <span class="brand-icon" aria-hidden="true">🐈</span>
+      <span>cat <span class="brand-amp">&amp;</span> kin</span>
+    </a>
+    <a class="gallery-nav-button" routerLink="/">
+      Back to quiz <span aria-hidden="true">←</span>
+    </a>
+    <span class="topbar-note"
+      ><span class="sparkle" aria-hidden="true">✳</span> a little quiz with a lot of heart</span
+    >
+  </header>
+
+  <main>
+    <section class="gallery-page" id="cat-gallery" aria-labelledby="gallery-title">
+      <div class="gallery-heading">
+        <span class="eyebrow"><span aria-hidden="true">✦</span> REAL CATS, READY TO MEET YOU</span>
+        <h1 id="gallery-title">Meet the <span>whole crew.</span></h1>
+        <p>
+          Browse {{ cats.length }} cat profiles from Loudoun County Animal Services. Snapshot
+          captured {{ snapshotDate }}; check each profile for current availability.
+        </p>
+      </div>
+
+      <div class="gallery-grid">
+        @for (cat of cats; track cat.id) {
+          <article class="gallery-card">
+            <div class="gallery-photo-wrap">
+              <img
+                class="gallery-photo"
+                [src]="cat.images[0].url"
+                [alt]="cat.images[0].alt"
+                loading="lazy"
+                decoding="async"
+              />
+              <span class="gallery-photo-caption">{{ cat.name }}</span>
+            </div>
+            <div class="gallery-card-copy">
+              <h2>{{ cat.name }}</h2>
+              <p>{{ catSummary(cat) }}</p>
+              <div class="trait-list" aria-label="Profile details">
+                @if (catAge(cat)) {
+                  <span class="trait-tag">{{ catAge(cat) }}</span>
+                }
+                @if (cat.applicationPending) {
+                  <span class="trait-tag">Application pending</span>
+                }
+                @if (catNeedsBarnHome(cat)) {
+                  <span class="trait-tag">Barn / working-cat home</span>
+                }
+                @if (!cat.matchable) {
+                  <span class="trait-tag">More adoption info</span>
+                }
+              </div>
+              <div class="gallery-credit">
+                <span>Photo and listing via 24Petconnect</span>
+                <a [href]="cat.sourceUrl" target="_blank" rel="noopener noreferrer">
+                  View profile ↗
+                </a>
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+
+      <div class="gallery-cta">
+        <div>
+          <span class="gallery-cta-kicker">YOUR NEXT BEST FRIEND COULD BE HERE</span>
+          <h2>Ready to meet your match?</h2>
+        </div>
+        <a class="button button-primary" routerLink="/" [queryParams]="{ startQuiz: true }">
+          Take the quiz <span aria-hidden="true">↗</span>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <span>cat <span aria-hidden="true">♡</span> kin</span>
+    <span>made with love &amp; a little cat hair</span>
+    <span>an internet-sized cuddle <span aria-hidden="true">✳</span></span>
+  </footer>
+</div>
